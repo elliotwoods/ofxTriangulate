@@ -13,7 +13,7 @@ using namespace ofxGraycode;
 void ofxTriangulate::Triangulate(DataSet data, Camera camera, Projector projector, ofMesh & mesh, float maxLength) {
 	
 	mesh.clear();
-	float maxLength2;
+	float maxLength2=maxLength*maxLength;
 	
 	DataSet::const_iterator it;
 	for (it = data.begin(); it != data.end(); ++it) {
@@ -27,8 +27,9 @@ void ofxTriangulate::Triangulate(DataSet data, Camera camera, Projector projecto
 			Ray pray = projector.castCoordinate(projXY);
 			Ray intersect = cray.intersect(pray);
 			
-			if (intersect.getLengthSquared() > maxLength2)
+			if (intersect.getLengthSquared() > maxLength2){
 				continue;
+			}
 			//ofVec3f xyz = intersect.getMidpoint();
 			ofVec3f xyz = intersect.s;
 			
