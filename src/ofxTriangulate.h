@@ -17,6 +17,6 @@
 class ofxTriangulate {
 public:
 	static void Triangulate(ofxGraycode::DataSet, ofxRay::Camera, ofxRay::Projector, ofMesh & mesh, float maxLength);
-	static ofVec3f Triangulate(float cam1PixelIndex, float cam2PixelIndex, ofxRay::Camera & camera1, ofxRay::Camera & camera2);
+	static ofVec3f Triangulate(int cam1PixelIndex, int cam2PixelIndex, ofxRay::Camera & camera1, ofxRay::Camera & camera2);
 	static void Triangulate(ofxGraycode::DataSet data1, ofxGraycode::DataSet data2, ofxRay::Camera & camera1, ofxRay::Camera & camera2, ofMesh & mesh, float maxLength);
 };

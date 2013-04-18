@@ -10,13 +10,6 @@
 using namespace ofxRay;
 using namespace ofxGraycode;
 
-static inline ofVec2f getNorm(const uint index, const uint width, const uint height) {
-	uint x = index % width;
-	uint y = index / width;
-	return ofVec2f(2.0f * (float(x) + 0.5) / float(width) - 1.0f,
-			2.0f * (float(y) + 0.5) / float(height) - 1.0f);
-}
-
 void ofxTriangulate::Triangulate(DataSet data, Camera camera, Projector projector, ofMesh & mesh, float maxLength) {
 	
 	mesh.clear();
@@ -47,7 +40,7 @@ void ofxTriangulate::Triangulate(DataSet data, Camera camera, Projector projecto
 	}
 }
 
-void ofxTriangulate::Triangulate(ofxGraycode::DataSet data1, ofxGraycode::DataSet data2, ofxRay::Camera & camera1, ofxRay::Camera & camera2, ofMesh & mesh, float maxLength){
+void ofxTriangulate::Triangulate(DataSet data1, DataSet data2, Camera & camera1, Camera & camera2, ofMesh & mesh, float maxLength){
 	mesh.clear();
 	float maxLength2=maxLength*maxLength;
 
@@ -62,10 +55,10 @@ void ofxTriangulate::Triangulate(ofxGraycode::DataSet data1, ofxGraycode::DataSe
 	}
 }
 
-ofVec3f ofxTriangulate::Triangulate(float cam1PixelIndex, float cam2PixelIndex, Camera & camera1, Camera & camera2) {
+ofVec3f ofxTriangulate::Triangulate(int cam1PixelIndex, int cam2PixelIndex, Camera & camera1, Camera & camera2) {
 
-	ofVec2f cam1XYNorm = getNorm(cam1PixelIndex,camera1.getWidth(),camera1.getHeight());
-	ofVec2f cam2XYNorm = getNorm(cam2PixelIndex,camera2.getWidth(),camera2.getHeight());
+	ofVec2f cam1XYNorm = camera1.getNormFromIndex(cam1PixelIndex);
+	ofVec2f cam2XYNorm = camera2.getNormFromIndex(cam2PixelIndex);
 	ofxRay::Ray cray1 = camera1.castCoordinate(cam1XYNorm);
 	ofxRay::Ray cray2 = camera2.castCoordinate(cam2XYNorm);
 	ofxRay::Ray intersect = cray1.intersect(cray2);
