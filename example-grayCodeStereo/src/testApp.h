@@ -24,12 +24,15 @@ class testApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
+		ofxRay::Camera camera1;
+		ofxRay::Camera camera2;
+
 		PayloadGraycode payload;
 		Decoder decoder1, decoder2;
 		ofVboMesh mesh;
 		ofTexture mean1, inverseMean1, mean2, inverseMean2;
 		ofImage depthMap;
-		ofEasyCam camera;
+		ofEasyCam easyCam;
 
 		ofImage imgColor;
 
@@ -38,4 +41,7 @@ class testApp : public ofBaseApp{
 			DepthMap,
 			ThreeD,
 		}mode;
+
+		ofxRay::Ray ray1;
+		ofxRay::Ray ray2;
 };

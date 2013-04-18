@@ -63,5 +63,5 @@ ofVec3f ofxTriangulate::Triangulate(int cam1PixelIndex, int cam2PixelIndex, Came
 	ofxRay::Ray cray2 = camera2.castCoordinate(cam2XYNorm);
 	ofxRay::Ray intersect = cray1.intersect(cray2);
 
-	return intersect.s;
+	return intersect.getMidpoint();
 }
