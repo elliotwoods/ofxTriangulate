@@ -39,3 +39,29 @@ void ofxTriangulate::Triangulate(DataSet data, Camera camera, Projector projecto
 		}
 	}
 }
+
+void ofxTriangulate::Triangulate(DataSet data1, DataSet data2, Camera & camera1, Camera & camera2, ofMesh & mesh, float maxLength){
+	mesh.clear();
+	float maxLength2=maxLength*maxLength;
+
+	for(int i=0;i<data1.getDataInverse().size();i++){
+		int d1 = data1.getDataInverse()[i];
+		int d2 = data2.getDataInverse()[i];
+		if(data1.getActive()[d1] && data2.getActive()[d2]){
+			ofVec3f world = Triangulate(d1,d2,camera1,camera2);
+			if(world.lengthSquared()<maxLength2)
+				mesh.addVertex(world);
+		}
+	}
+}
+
+ofVec3f ofxTriangulate::Triangulate(int cam1PixelIndex, int cam2PixelIndex, Camera & camera1, Camera & camera2) {
+
+	ofVec2f cam1XYNorm = camera1.getNormFromIndex(cam1PixelIndex);
+	ofVec2f cam2XYNorm = camera2.getNormFromIndex(cam2PixelIndex);
+	ofxRay::Ray cray1 = camera1.castCoordinate(cam1XYNorm);
+	ofxRay::Ray cray2 = camera2.castCoordinate(cam2XYNorm);
+	ofxRay::Ray intersect = cray1.intersect(cray2);
+
+	return intersect.getMidpoint();
+}

@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\testApp.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ofxTriangulate.cpp">
+      <Filter>addons\ofxTriangulate</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{d8376475-7454-4a24-b08a-aac121d3ad6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons">
+      <UniqueIdentifier>{3b846f9e-e9a4-4518-a330-9ff2a3bb5085}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxTriangulate">
+      <UniqueIdentifier>{eefdbab3-1575-4ef1-94d6-849c8eef9ce4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\testApp.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ofxTriangulate.h">
+      <Filter>addons\ofxTriangulate</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
