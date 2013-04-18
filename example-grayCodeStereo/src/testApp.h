@@ -25,7 +25,6 @@ class testApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 		PayloadGraycode payload;
-		Encoder encoder;
 		Decoder decoder1, decoder2;
 		ofVboMesh mesh;
 		ofTexture mean1, inverseMean1, mean2, inverseMean2;
