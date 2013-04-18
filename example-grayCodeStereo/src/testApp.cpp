@@ -41,32 +41,7 @@ void testApp::setup(){
 	depthMap.allocate(decoder1.getDataSet().getDataInverse().getWidth(),decoder1.getDataSet().getDataInverse().getHeight(),OF_IMAGE_GRAYSCALE);
 	depthMap.getPixelsRef().set(0);
 	imgColor.loadImage(path+"capture2/1.png");
-	mesh.setMode(OF_PRIMITIVE_POINTS);
-
-
-
-	/*for(uint i=0;i<decoder1.getDataSet().getDataInverse().size();i++){
-		int d1 = decoder1.getDataSet().getDataInverse()[i];
-		int d2 = decoder2.getDataSet().getDataInverse()[i];
-		int x = i%decoder1.getDataSet().getDataInverse().getWidth();
-		int y = i/decoder1.getDataSet().getDataInverse().getWidth();
-		if(decoder1.getDataSet().getActive()[d1] && decoder2.getDataSet().getActive()[d2]){
-			//int diff = d1-d2;
-			int d1_x = d1%decoder1.getDataSet().getData().getWidth();
-			int d1_y = d1/decoder1.getDataSet().getData().getWidth();
-			int d2_x = d2%decoder1.getDataSet().getData().getWidth();
-			int d2_y = d2/decoder2.getDataSet().getData().getWidth();
-			//int z = abs(d2_x-d1_x)*3;
-			float z = ofVec2f(d2_x,d2_y).distance(ofVec2f(d1_x,d1_y))*4;
-			ofVec2f p = ofVec3f(x,y);
-			mesh.addVertex(ofVec3f(p.x,p.y,z));
-			mesh.addTexCoord(ofVec2f(d2_x,d2_y));
-			//mesh.addColor(ofFloatColor(imgColor2.getColor(d2_x,d2_y)));
-			depthMap.getPixelsRef()[x+y*depthMap.getWidth()] = (z*255)/1024.;
-		}
-	}
-	depthMap.update();
-	mesh.save("mesh.ply");*/
+    mesh.setMode(OF_PRIMITIVE_POINTS);
 
 	float zNear = -1;
 	float zFar = 1000;
@@ -80,13 +55,7 @@ void testApp::setup(){
 	ofxRay::Camera camera1(ofVec2f(fx,fy),ofVec2f(cx,cy),zNear,zFar,w,h);
 	ofxRay::Camera camera2(ofVec2f(fx,fy),ofVec2f(cx,cy),zNear,zFar,w,h);
 	camera1.move(-80,0,0);
-	camera2.move(80,0,0);
-	/*camera1.setDistortionCoeffs(-1.8485624115541981e-02, 1.7542084045196377e-01,
-		       -5.8501379173839701e-03, 2.8400331767995646e-03,
-		       -1.0012578431324812e+00);
-	camera2.setDistortionCoeffs(-1.8485624115541981e-02, 1.7542084045196377e-01,
-		       -5.8501379173839701e-03, 2.8400331767995646e-03,
-		       -1.0012578431324812e+00);*/
+    camera2.move(80,0,0);
 
 	for(int i=0;i<decoder1.getDataSet().getDataInverse().size();i++){
 		int d1 = decoder1.getDataSet().getDataInverse()[i];
