@@ -40,8 +40,7 @@ class testApp : public ofBaseApp{
 			Mean=0,
 			DepthMap,
 			ThreeD,
+			ThroughCamera1,
+			ThroughCamera2
 		}mode;
-
-		ofxRay::Ray ray1;
-		ofxRay::Ray ray2;
 };

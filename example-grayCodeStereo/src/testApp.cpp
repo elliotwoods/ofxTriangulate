@@ -54,7 +54,7 @@ void testApp::setup(){
 	inverseMean2.loadData(decoder2.getDataSet().getMeanInverse());
 
 	ofEnableAlphaBlending();
-	ofBackground(255);
+	ofBackground(200);
 
 	// Allocate the depth map with the projector's width and height.
 	depthMap.allocate(payload.getWidth(),payload.getHeight(),OF_IMAGE_GRAYSCALE);
@@ -83,15 +83,17 @@ void testApp::setup(){
 	float w = 1280;
 	float h = 720;
 	
-	// These values are only used when
-	//  visualising the cameras, and
+	// These values generally are only used
+	//  when visualising the cameras, and
 	//  do not relate to the calibration.
 	float zNear = 10;
-	float zFar = 1000;
+	float zFar = 2000;
+	ofxRay::Camera::setDefaultNear(zNear);
+	ofxRay::Camera::setDefaultFar(zFar);
 
 	// Setup the cameras using known intrinsics
-	camera1 = ofxRay::Camera(ofVec2f(fx,fy),ofVec2f(cx,cy),zNear,zFar,w,h);
-	camera2 = ofxRay::Camera(ofVec2f(fx,fy),ofVec2f(cx,cy),zNear,zFar,w,h);
+	camera1 = ofxRay::Camera(ofVec2f(fx,fy),ofVec2f(cx,cy),w,h);
+	camera2 = ofxRay::Camera(ofVec2f(fx,fy),ofVec2f(cx,cy),w,h);
 
 	// Set the camera locations relative to each
 	//  other.
@@ -126,9 +128,6 @@ void testApp::setup(){
 			int d2_x = d2 % decoder1.getDataSet().getData().getWidth();
 			int d2_y = d2 / decoder2.getDataSet().getData().getWidth();
 
-			ray1 = camera2.castPixel(d1 % 1280, d1 / 1280);
-			ray2 = camera2.castPixel(d2_x, d2_y);
-
 			mesh.addVertex(world);
 			mesh.addTexCoord(ofVec2f(d2_x,d2_y));//ofFloatColor(imgColor2.getColor(d2_x,d2_y)));
 			depthMap.getPixelsRef()[x+y*depthMap.getWidth()] = (world.z*255)/zFar;
@@ -162,6 +161,7 @@ void testApp::draw(){
 	int height = mean1.getHeight()*640/mean1.getWidth();
 	switch(mode){
 	case Mean:
+		ofDrawBitmapString("Mean", 20, 20);
 		mean1.draw(0,0,640,height);
 		mean2.draw(640,0,640,height);
 		ofSetColor(255,180);
@@ -170,9 +170,11 @@ void testApp::draw(){
 		inverseMean2.draw(0,height,640,480);
 		break;
 	case DepthMap:
+		ofDrawBitmapString("Depth map", 20, 20);
 		depthMap.draw(0,0);
 		break;
 	case ThreeD:
+		ofDrawBitmapString("3D", 20, 20);
 		easyCam.begin();
 
 		// Draw the mesh using the colour image as texture
@@ -183,10 +185,42 @@ void testApp::draw(){
 		// Draw the cameras which we used to draw the scene
 		camera1.draw();
 		camera2.draw();
-
-		ray1.draw();
-
+			
+		// Label the cameras
+		ofDrawBitmapString("Camera 1", this->camera1.getPosition());
+		ofDrawBitmapString("Camera 2", this->camera2.getPosition());
+	
 		easyCam.end();
+		break;
+	case ThroughCamera1:
+		ofDrawBitmapString("View point cloud through Camera 1", 20, 20);
+		ofPushView();
+		glMatrixMode(GL_PROJECTION);
+		glLoadMatrixf(camera1.getClippedProjectionMatrix().getPtr());
+		glMatrixMode(GL_MODELVIEW);
+		glLoadMatrixf(camera1.getViewMatrix().getPtr());
+		
+		// Draw the mesh using the colour image as texture
+		imgColor.bind();
+		mesh.draw();
+		imgColor.unbind();
+		
+		ofPopView();
+		break;
+	case ThroughCamera2:
+		ofDrawBitmapString("View point cloud through Camera 2", 20, 20);
+		ofPushView();
+		glMatrixMode(GL_PROJECTION);
+		glLoadMatrixf(camera2.getClippedProjectionMatrix().getPtr());
+		glMatrixMode(GL_MODELVIEW);
+		glLoadMatrixf(camera2.getViewMatrix().getPtr());
+		
+		// Draw the mesh using the colour image as texture
+		imgColor.bind();
+		mesh.draw();
+		imgColor.unbind();
+		
+		ofPopView();
 		break;
 	}
 }
@@ -196,8 +230,8 @@ void testApp::draw(){
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
 	if(key==' '){
-		mode= (Mode)(int(mode)+ 1);
-		mode= (Mode)(int(mode)%3);
+		mode= (Mode)(int(mode) + 1);
+		mode= (Mode)(int(mode) % 5);
 	}
 }
 
