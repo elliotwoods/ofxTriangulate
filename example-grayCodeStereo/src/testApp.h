@@ -34,7 +34,9 @@ class testApp : public ofBaseApp{
 		ofImage depthMap;
 		ofEasyCam easyCam;
 
-		ofImage imgColor;
+		ofImage imgColor1;
+		ofImage imgColor2;
+		ofImage colorFromProjector;
 
 		enum Mode{
 			Mean=0,

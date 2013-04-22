@@ -14,6 +14,7 @@ void testApp::setup(){
 
 	// Initialise the decoder with projector's encoding
 	decoder1.init(payload);
+	ofImage imgColor;
 
 	// Load the graycode images from camera 1 into decoder1
 	ofLogNotice() << "Loading images for camera 1";
@@ -62,11 +63,6 @@ void testApp::setup(){
 	// Blank all the pixels in the depth map.
 	depthMap.getPixelsRef().set(0);
 
-	// Use the first image from the scan as the colour image.
-	// Ideally you'd take a seperate image when the lights are on and use that
-	//  (e.g. when the projector is showing all white).
-	imgColor.loadImage(path+"capture2/0.png");
-
     mesh.setMode(OF_PRIMITIVE_POINTS);
 
 	// Initialise the properties of the camera.
@@ -106,6 +102,16 @@ void testApp::setup(){
 	camera1.move(-80,0,0);
     camera2.move(80,0,0);
 
+	// Use the first image from the scan as the colour image.
+	// Ideally you'd take a seperate image when the lights are on and use that
+	//  (e.g. when the projector is showing all white).
+	imgColor1.loadImage(path+"capture1/0.png");
+	imgColor2.loadImage(path+"capture2/0.png");
+
+	colorFromProjector.allocate(payload.getWidth(),payload.getHeight(),OF_IMAGE_COLOR);
+	ofPixels & inverseColorPixels = colorFromProjector.getPixelsRef();
+	inverseColorPixels.set(0);
+
 	// Loop through projector pixels (by looping through getDataInverse()
 	ofLogNotice() << "Triangulating 3D positions..";
 	for(int i=0;i<decoder1.getDataSet().getDataInverse().size();i++){
@@ -118,27 +124,44 @@ void testApp::setup(){
 		int x = i % payload.getWidth();
 		int y = i / payload.getWidth();
 
+		int d1_x = d1 % decoder1.getDataSet().getData().getWidth();
+		int d1_y = d1 / decoder1.getDataSet().getData().getWidth();
+		int d2_x = d2 % decoder2.getDataSet().getData().getWidth();
+		int d2_y = d2 / decoder2.getDataSet().getData().getWidth();
+
 		// If this projector pixel is seen in both camera1 and camera2, then use it
 		if(decoder1.getDataSet().getActive()[d1] && decoder2.getDataSet().getActive()[d2]){
-			
+
 			// Triangulate the 3D world position of this projector pixel
 			ofVec3f world = ofxTriangulate::Triangulate(d1,d2,camera1,camera2);
 
-			// x and y in camera 2 space
-			int d2_x = d2 % decoder1.getDataSet().getData().getWidth();
-			int d2_y = d2 / decoder2.getDataSet().getData().getWidth();
-
 			mesh.addVertex(world);
 			mesh.addTexCoord(ofVec2f(d2_x,d2_y));//ofFloatColor(imgColor2.getColor(d2_x,d2_y)));
-			depthMap.getPixelsRef()[x+y*depthMap.getWidth()] = (world.z*255)/zFar;
+			depthMap.getPixelsRef()[x+y*depthMap.getWidth()] = (world.z*255)/(zFar-zNear);
+		}
+
+		// recreate color image from projector pov
+		// from the cameras, using the info from
+		// the 2 cameras we can avoid shadows
+		if(decoder1.getDataSet().getActive()[d1]){
+			ofColor c = imgColor1.getColor(d1_x,d1_y);
+			inverseColorPixels[i*3] = c.r;
+			inverseColorPixels[i*3+1] = c.g;
+			inverseColorPixels[i*3+2] = c.b;
+		}else if(decoder2.getDataSet().getActive()[d2]){
+			ofColor c = imgColor2.getColor(d2_x,d2_y);
+			inverseColorPixels[i*3] = c.r;
+			inverseColorPixels[i*3+1] = c.g;
+			inverseColorPixels[i*3+2] = c.b;
 		}
 	}
 	depthMap.update();
+	colorFromProjector.update();
 
 	// Save all results
 	mesh.save("mesh.ply");
 	depthMap.saveImage("depthMap.png");
-	imgColor.saveImage("imgColor.png");
+	colorFromProjector.saveImage("inverse.png");
 
 	// Point camera at center of mesh
 	ofVec3f centroid=mesh.getCentroid();
@@ -161,13 +184,12 @@ void testApp::draw(){
 	int height = mean1.getHeight()*640/mean1.getWidth();
 	switch(mode){
 	case Mean:
-		ofDrawBitmapString("Mean", 20, 20);
+		ofDrawBitmapString("Mean cam1", 20, 20);
 		mean1.draw(0,0,640,height);
+		ofDrawBitmapString("Mean cam2", 660, 20);
 		mean2.draw(640,0,640,height);
-		ofSetColor(255,180);
-		inverseMean1.draw(0,height,640,480);
-		ofSetColor(255,180);
-		inverseMean2.draw(0,height,640,480);
+		ofDrawBitmapString("color projector", 20, height+20);
+		colorFromProjector.draw(0,height,640,480);
 		break;
 	case DepthMap:
 		ofDrawBitmapString("Depth map", 20, 20);
@@ -178,9 +200,9 @@ void testApp::draw(){
 		easyCam.begin();
 
 		// Draw the mesh using the colour image as texture
-		imgColor.bind();
+		imgColor2.bind();
 		mesh.draw();
-		imgColor.unbind();
+		imgColor2.unbind();
 		
 		// Draw the cameras which we used to draw the scene
 		camera1.draw();
@@ -201,9 +223,9 @@ void testApp::draw(){
 		glLoadMatrixf(camera1.getViewMatrix().getPtr());
 		
 		// Draw the mesh using the colour image as texture
-		imgColor.bind();
+		imgColor2.bind();
 		mesh.draw();
-		imgColor.unbind();
+		imgColor2.unbind();
 		
 		ofPopView();
 		break;
@@ -216,9 +238,9 @@ void testApp::draw(){
 		glLoadMatrixf(camera2.getViewMatrix().getPtr());
 		
 		// Draw the mesh using the colour image as texture
-		imgColor.bind();
+		imgColor2.bind();
 		mesh.draw();
-		imgColor.unbind();
+		imgColor2.unbind();
 		
 		ofPopView();
 		break;
