@@ -14,6 +14,8 @@ void testApp::setup(){
 
 	// Initialise the decoder with projector's encoding
 	decoder1.init(payload);
+	
+	// An image instance for loading camera captures from disk
 	ofImage imgColor;
 
 	// Load the graycode images from camera 1 into decoder1
@@ -108,6 +110,10 @@ void testApp::setup(){
 	imgColor1.loadImage(path+"capture1/0.png");
 	imgColor2.loadImage(path+"capture2/0.png");
 
+	// Create a blank image which will represent the view from
+	//  the projector. Here we can take a colour capture from
+	//  the projector's perspective by copying the right pixels
+	//  from one of the camera's images.
 	colorFromProjector.allocate(payload.getWidth(),payload.getHeight(),OF_IMAGE_COLOR);
 	ofPixels & inverseColorPixels = colorFromProjector.getPixelsRef();
 	inverseColorPixels.set(0);
@@ -124,6 +130,7 @@ void testApp::setup(){
 		int x = i % payload.getWidth();
 		int y = i / payload.getWidth();
 
+		// Pixel index x,y in camera 1,2
 		int d1_x = d1 % decoder1.getDataSet().getData().getWidth();
 		int d1_y = d1 / decoder1.getDataSet().getData().getWidth();
 		int d2_x = d2 % decoder2.getDataSet().getData().getWidth();
@@ -172,6 +179,7 @@ void testApp::setup(){
 	glPointSize(2);
 	glEnable(GL_DEPTH_TEST);
 
+	// Set initial program mode to view the 3D scene
 	mode = ThreeD;
 }
 
