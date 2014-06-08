@@ -15,38 +15,47 @@ void ofxTriangulate::Triangulate(DataSet data, Camera camera, Projector projecto
 	
 	mesh.clear();
 	float maxLength2=maxLength*maxLength;
+	ofVec3f xyz;
 	
 	DataSet::const_iterator it;
 	for (it = data.begin(); it != data.end(); ++it) {
 		DataSet::const_iterator::reference r = *it;
 		if ((*it).active) {
-			ofVec2f camXY = r.getCameraXYNorm();
-			ofVec2f projXY = r.getProjectorXYNorm();
-			
-			camXY = camera.undistortCoordinate(camXY);
-			
-			Ray cray = camera.castCoordinate(camXY);
-			Ray pray = projector.castCoordinate(projXY);
-			Ray intersect = cray.intersect(pray);
-			
-			const auto lengthSquared = intersect.getLengthSquared();
-			if (lengthSquared > maxLength2){
-				continue;
-			}
-			ofVec3f xyz = intersect.getMidpoint();
-			
-			mesh.addVertex(xyz);
-			
-			if (giveColor) {
-				mesh.addColor(ofFloatColor(projXY.x, projXY.y, 0.0f));
-			}
-			
-			if (giveTexCoord) {
-				mesh.addTexCoord(camXY);
+			if(Triangulate(it, camera, projector, xyz, maxLength2)) {
+				mesh.addVertex(xyz);
+				
+				if (giveColor) {
+					auto projNorm = (*it).getProjectorXYNorm();
+					mesh.addColor(ofFloatColor(projNorm.x, projNorm.y, 0.0f));
+				}
+				
+				if (giveTexCoord) {
+					auto camXY = (*it).getCameraXY();
+					mesh.addTexCoord(camXY);
+				}
+				
 			}
 		}
 	}
 }
+
+//--------
+bool ofxTriangulate::Triangulate(ofxGraycode::DataSet::const_iterator& it, const ofxRay::Camera& camera, const ofxRay::Projector& projector, ofVec3f& worldResult, float maxLength2) {
+	ofVec2f camXY = (*it).getCameraXYNorm();
+	ofVec2f projXY = (*it).getProjectorXYNorm();
+	
+	Ray cray = camera.castCoordinate(camXY);
+	Ray pray = projector.castCoordinate(projXY);
+	Ray intersect = cray.intersect(pray);
+	
+	const auto lengthSquared = intersect.getLengthSquared();
+	if (lengthSquared > maxLength2) {
+		return false;
+	}
+	worldResult = intersect.getMidpoint();
+	return true;
+}
+
 //--------
 bool ofxTriangulate::Triangulate(int cameraPixelIndex, int projectorPixelIndex, const ofxRay::Camera& camera, const ofxRay::Projector& projector, ofVec3f& worldXYZResult, float maxLength) {
 	const ofVec2f cameraCoordinate = camera.getCoordinateFromIndex(cameraPixelIndex);
