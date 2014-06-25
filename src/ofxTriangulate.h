@@ -19,8 +19,11 @@ public:
 	
 	///1 x Camera, 1 x Projector. Triangulate an ofxGraycode::DataSet
 	static void Triangulate(ofxGraycode::DataSet, ofxRay::Camera, ofxRay::Projector, ofMesh & mesh, float maxLength = std::numeric_limits<float>::max(), bool giveColor=true, bool giveTexCoord=true);
-	
-	///1 x Camera, 1 x Projector. Triangulate an individual point
+
+	///1 x Camera, 1 x Projector. Triangulate a point in a ofxGraycode::DataSet
+	static bool Triangulate(ofxGraycode::DataSet::const_iterator& it, const ofxRay::Camera&, const ofxRay::Projector&, ofVec3f& worldXYZResult, float maxLength2 = std::numeric_limits<float>::max());
+
+	///1 x Camera, 1 x Projector. Triangulate an individual point by index
 	static bool Triangulate(int cameraPixelIndex, int projectorPixelIndex, const ofxRay::Camera&, const ofxRay::Projector&, ofVec3f& worldXYZResult, float maxLength = std::numeric_limits<float>::max());
 	
 	///2 x Camera. Triangulate a single point
