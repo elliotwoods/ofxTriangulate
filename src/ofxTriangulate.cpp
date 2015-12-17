@@ -11,7 +11,7 @@ using namespace ofxRay;
 using namespace ofxGraycode;
 
 //--------
-void ofxTriangulate::Triangulate(DataSet data, Camera camera, Projector projector, ofMesh & mesh, float maxLength, bool giveColor, bool giveTexCoord) {
+void ofxTriangulate::Triangulate(const DataSet & data, const Camera & camera, const Projector & projector, ofMesh & mesh, float maxLength, bool giveColor, bool giveTexCoord) {
 	
 	mesh.clear();
 	float maxLength2=maxLength*maxLength;
@@ -25,13 +25,13 @@ void ofxTriangulate::Triangulate(DataSet data, Camera camera, Projector projecto
 				mesh.addVertex(xyz);
 				
 				if (giveColor) {
-					auto projNorm = (*it).getProjectorXYNorm();
-					mesh.addColor(ofFloatColor(projNorm.x, projNorm.y, 0.0f));
+					auto cameraNorm = (*it).getCameraXYNorm();
+					mesh.addColor(ofFloatColor(cameraNorm.x, cameraNorm.y, 0.0f));
 				}
 				
 				if (giveTexCoord) {
-					auto camXY = (*it).getCameraXY();
-					mesh.addTexCoord(camXY);
+					auto projXY = (*it).getProjectorXYNorm();
+					mesh.addTexCoord(projXY);
 				}
 				
 			}
@@ -73,7 +73,7 @@ bool ofxTriangulate::Triangulate(int cameraPixelIndex, int projectorPixelIndex, 
 }
 
 //--------
-void ofxTriangulate::Triangulate(DataSet data1, DataSet data2, Camera & camera1, Camera & camera2, ofMesh & mesh, float maxLength){
+void ofxTriangulate::Triangulate(const DataSet & data1, const DataSet & data2, const Camera & camera1, const Camera & camera2, ofMesh & mesh, float maxLength){
 	mesh.clear();
 	float maxLength2=maxLength*maxLength;
 
@@ -89,7 +89,7 @@ void ofxTriangulate::Triangulate(DataSet data1, DataSet data2, Camera & camera1,
 }
 
 //--------
-ofVec3f ofxTriangulate::Triangulate(int cam1PixelIndex, int cam2PixelIndex, Camera & camera1, Camera & camera2) {
+ofVec3f ofxTriangulate::Triangulate(int cam1PixelIndex, int cam2PixelIndex, const Camera & camera1, const Camera & camera2) {
 
 	ofVec2f cam1XYNorm = camera1.getCoordinateFromIndex(cam1PixelIndex);
 	ofVec2f cam2XYNorm = camera2.getCoordinateFromIndex(cam2PixelIndex);
