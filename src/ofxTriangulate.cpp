@@ -44,8 +44,8 @@ bool ofxTriangulate::Triangulate(ofxGraycode::DataSet::const_iterator& it, const
 	ofVec2f camXY = (*it).getCameraXYNorm();
 	ofVec2f projXY = (*it).getProjectorXYNorm();
 	
-	Ray cray = camera.castCoordinate(camXY);
-	Ray pray = projector.castCoordinate(projXY);
+	Ray cray = camera.castCoordinate(camXY); // give me the 3D ray for a camera pixel
+	Ray pray = projector.castCoordinate(projXY); // give me the 3D ray for a projector pixel
 	Ray intersect = cray.intersect(pray);
 	
 	const auto lengthSquared = intersect.getLengthSquared();
@@ -60,6 +60,7 @@ bool ofxTriangulate::Triangulate(ofxGraycode::DataSet::const_iterator& it, const
 bool ofxTriangulate::Triangulate(int cameraPixelIndex, int projectorPixelIndex, const ofxRay::Camera& camera, const ofxRay::Projector& projector, ofVec3f& worldXYZResult, float maxLength) {
 	const ofVec2f cameraCoordinate = camera.getCoordinateFromIndex(cameraPixelIndex);
 	const ofVec2f projectorCoordinate = projector.getCoordinateFromIndex(projectorPixelIndex);
+	
 	Ray cameraRay = camera.castCoordinate(cameraCoordinate);
 	Ray projectorRay = projector.castCoordinate(projectorCoordinate);
 	Ray intersect = cameraRay.intersect(projectorRay);
