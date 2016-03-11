@@ -112,10 +112,10 @@
     <ProjectReference Include="..\..\..\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">
       <Project>{5837595d-aca9-485c-8e76-729040ce4b0b}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\ofxGraycode\ofxGraycodeLib\ofxGraycodeLib.vcxproj">
+    <ProjectReference Include="..\..\..\addons\ofxGraycode\ofxGraycodeLib\ofxGraycodeLib.vcxproj">
       <Project>{fe06ee51-020e-4a7b-95ea-e051951b6e18}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\ofxRay\ofxRayLib\ofxRayLib.vcxproj">
+    <ProjectReference Include="..\..\..\addons\ofxRay\ofxRayLib\ofxRayLib.vcxproj">
       <Project>{2a907b97-c962-435b-80d0-f141c042f066}</Project>
     </ProjectReference>
   </ItemGroup>
