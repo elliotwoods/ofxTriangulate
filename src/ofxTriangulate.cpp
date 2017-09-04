@@ -100,3 +100,32 @@ ofVec3f ofxTriangulate::Triangulate(int cam1PixelIndex, int cam2PixelIndex, cons
 
 	return intersect.getMidpoint();
 }
+
+//----------
+void ofxTriangulate::Triangulate(const vector<ofVec2f> & cameraPointsA, const vector<ofVec2f> & cameraPointsB, const ofxRay::Camera & cameraA, const ofxRay::Camera & cameraB, vector<ofVec3f> & worldSpacePoints, float maxLength /*= std::numeric_limits<float>::max()*/) {
+	if (cameraPointsA.size() != cameraPointsB.size()) {
+		ofLogError("ofxTriangulate") << "input lengths do not match";
+		return;
+	}
+
+	auto size = cameraPointsA.size();
+
+	vector<ofxRay::Ray> cameraRaysA;
+	cameraA.castPixels(cameraPointsA, cameraRaysA);
+
+	vector<ofxRay::Ray> cameraRaysB;
+	cameraB.castPixels(cameraPointsB, cameraRaysB);
+
+	auto maxLengthSquared = maxLength * maxLength;
+
+	worldSpacePoints.clear();
+	for (size_t i = 0; i < size; i++) {
+		auto intersection = cameraRaysA[i].intersect(cameraRaysB[i]);
+		if (intersection.getLengthSquared() > maxLengthSquared) {
+			worldSpacePoints.push_back(ofVec3f());
+		}
+		else {
+			worldSpacePoints.push_back(intersection.getStart());
+		}
+	}
+}

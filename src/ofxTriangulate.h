@@ -31,4 +31,6 @@ public:
 	
 	///2 x Camera. Triangulate a pair of ofxGraycode::DataSet's
 	static void Triangulate(const ofxGraycode::DataSet & data1, const ofxGraycode::DataSet & data2, const ofxRay::Camera & camera1, const ofxRay::Camera & camera2, ofMesh & mesh, float maxLength);
+
+	static void Triangulate(const vector<ofVec2f> & cameraPointsA, const vector<ofVec2f> & cameraPointsB, const ofxRay::Camera & cameraA, const ofxRay::Camera & cameraB, vector<ofVec3f> & worldSpacePoints, float maxLength = std::numeric_limits<float>::max());
 };
