@@ -43,11 +43,59 @@ void ofxTriangulate::Triangulate(const DataSet & data, const Camera & camera, co
 bool ofxTriangulate::Triangulate(ofxGraycode::DataSet::const_iterator& it, const ofxRay::Camera& camera, const ofxRay::Projector& projector, ofVec3f& worldResult, float maxLength2) {
 	ofVec2f camXY = (*it).getCameraXYNorm();
 	ofVec2f projXY = (*it).getProjectorXYNorm();
-	
+
 	Ray cray = camera.castCoordinate(camXY); // give me the 3D ray for a camera pixel
 	Ray pray = projector.castCoordinate(projXY); // give me the 3D ray for a projector pixel
 	Ray intersect = cray.intersect(pray);
-	
+
+	const auto lengthSquared = intersect.getLengthSquared();
+	if (lengthSquared > maxLength2) {
+		return false;
+	}
+	worldResult = intersect.getMidpoint();
+	return true;
+}
+
+//--------
+void ofxTriangulate::Triangulate(const DataSet & data, const Camera & camera, const Projector & projector, ofMesh & mesh, float maxLength, bool giveColor, bool giveTexCoord, const function<ofVec2f(const ofVec2f &)> & undistortFunction) {
+
+	mesh.clear();
+	float maxLength2 = maxLength*maxLength;
+	ofVec3f xyz;
+
+	DataSet::const_iterator it;
+	for (it = data.begin(); it != data.end(); ++it) {
+		DataSet::const_iterator::reference r = *it;
+		if ((*it).active) {
+			if (Triangulate(it, camera, projector, xyz, maxLength2, undistortFunction)) {
+				mesh.addVertex(xyz);
+
+				if (giveColor) {
+					auto cameraNorm = (*it).getCameraXYNorm();
+					mesh.addColor(ofFloatColor(cameraNorm.x, cameraNorm.y, 0.0f));
+				}
+
+				if (giveTexCoord) {
+					auto projXY = (*it).getProjectorXYNorm();
+					mesh.addTexCoord(projXY);
+				}
+
+			}
+		}
+	}
+}
+
+//--------
+bool ofxTriangulate::Triangulate(ofxGraycode::DataSet::const_iterator& it, const ofxRay::Camera& camera, const ofxRay::Projector& projector, ofVec3f& worldResult, float maxLength2, const function<ofVec2f(const ofVec2f &)> & undistortFunction) {
+	ofVec2f camXY = (*it).getCameraXY();
+	ofVec2f projXY = (*it).getProjectorXY();
+
+	camXY = undistortFunction(camXY);
+
+	Ray cray = camera.castPixel(camXY); // give me the 3D ray for a camera pixel
+	Ray pray = projector.castPixel(projXY); // give me the 3D ray for a projector pixel
+	Ray intersect = cray.intersect(pray);
+
 	const auto lengthSquared = intersect.getLengthSquared();
 	if (lengthSquared > maxLength2) {
 		return false;
@@ -99,4 +147,33 @@ ofVec3f ofxTriangulate::Triangulate(int cam1PixelIndex, int cam2PixelIndex, cons
 	ofxRay::Ray intersect = cray1.intersect(cray2);
 
 	return intersect.getMidpoint();
+}
+
+//----------
+void ofxTriangulate::Triangulate(const vector<ofVec2f> & cameraPointsA, const vector<ofVec2f> & cameraPointsB, const ofxRay::Camera & cameraA, const ofxRay::Camera & cameraB, vector<ofVec3f> & worldSpacePoints, float maxLength /*= std::numeric_limits<float>::max()*/) {
+	if (cameraPointsA.size() != cameraPointsB.size()) {
+		ofLogError("ofxTriangulate") << "input lengths do not match";
+		return;
+	}
+
+	auto size = cameraPointsA.size();
+
+	vector<ofxRay::Ray> cameraRaysA;
+	cameraA.castPixels(cameraPointsA, cameraRaysA);
+
+	vector<ofxRay::Ray> cameraRaysB;
+	cameraB.castPixels(cameraPointsB, cameraRaysB);
+
+	auto maxLengthSquared = maxLength * maxLength;
+
+	worldSpacePoints.clear();
+	for (size_t i = 0; i < size; i++) {
+		auto intersection = cameraRaysA[i].intersect(cameraRaysB[i]);
+		if (intersection.getLengthSquared() > maxLengthSquared) {
+			worldSpacePoints.push_back(ofVec3f());
+		}
+		else {
+			worldSpacePoints.push_back(intersection.getStart());
+		}
+	}
 }
