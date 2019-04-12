@@ -15,7 +15,7 @@ void ofxTriangulate::Triangulate(const DataSet & data, const Camera & camera, co
 	
 	mesh.clear();
 	float maxLength2=maxLength*maxLength;
-	ofVec3f xyz;
+	glm::vec3 xyz;
 	
 	DataSet::const_iterator it;
 	for (it = data.begin(); it != data.end(); ++it) {
@@ -40,9 +40,9 @@ void ofxTriangulate::Triangulate(const DataSet & data, const Camera & camera, co
 }
 
 //--------
-bool ofxTriangulate::Triangulate(ofxGraycode::DataSet::const_iterator& it, const ofxRay::Camera& camera, const ofxRay::Projector& projector, ofVec3f& worldResult, float maxLength2) {
-	ofVec2f camXY = (*it).getCameraXYNorm();
-	ofVec2f projXY = (*it).getProjectorXYNorm();
+bool ofxTriangulate::Triangulate(ofxGraycode::DataSet::const_iterator& it, const ofxRay::Camera& camera, const ofxRay::Projector& projector, glm::vec3& worldResult, float maxLength2) {
+	glm::vec2 camXY = (*it).getCameraXYNorm();
+	glm::vec2 projXY = (*it).getProjectorXYNorm();
 
 	Ray cray = camera.castCoordinate(camXY); // give me the 3D ray for a camera pixel
 	Ray pray = projector.castCoordinate(projXY); // give me the 3D ray for a projector pixel
@@ -57,11 +57,11 @@ bool ofxTriangulate::Triangulate(ofxGraycode::DataSet::const_iterator& it, const
 }
 
 //--------
-void ofxTriangulate::Triangulate(const DataSet & data, const Camera & camera, const Projector & projector, ofMesh & mesh, float maxLength, bool giveColor, bool giveTexCoord, const function<ofVec2f(const ofVec2f &)> & undistortFunction) {
+void ofxTriangulate::Triangulate(const DataSet & data, const Camera & camera, const Projector & projector, ofMesh & mesh, float maxLength, bool giveColor, bool giveTexCoord, const function<glm::vec2(const glm::vec2 &)> & undistortFunction) {
 
 	mesh.clear();
 	float maxLength2 = maxLength*maxLength;
-	ofVec3f xyz;
+	glm::vec3 xyz;
 
 	DataSet::const_iterator it;
 	for (it = data.begin(); it != data.end(); ++it) {
@@ -86,9 +86,9 @@ void ofxTriangulate::Triangulate(const DataSet & data, const Camera & camera, co
 }
 
 //--------
-bool ofxTriangulate::Triangulate(ofxGraycode::DataSet::const_iterator& it, const ofxRay::Camera& camera, const ofxRay::Projector& projector, ofVec3f& worldResult, float maxLength2, const function<ofVec2f(const ofVec2f &)> & undistortFunction) {
-	ofVec2f camXY = (*it).getCameraXY();
-	ofVec2f projXY = (*it).getProjectorXY();
+bool ofxTriangulate::Triangulate(ofxGraycode::DataSet::const_iterator& it, const ofxRay::Camera& camera, const ofxRay::Projector& projector, glm::vec3& worldResult, float maxLength2, const function<glm::vec2(const glm::vec2 &)> & undistortFunction) {
+	glm::vec2 camXY = (*it).getCameraXY();
+	glm::vec2 projXY = (*it).getProjectorXY();
 
 	camXY = undistortFunction(camXY);
 
@@ -105,9 +105,9 @@ bool ofxTriangulate::Triangulate(ofxGraycode::DataSet::const_iterator& it, const
 }
 
 //--------
-bool ofxTriangulate::Triangulate(int cameraPixelIndex, int projectorPixelIndex, const ofxRay::Camera& camera, const ofxRay::Projector& projector, ofVec3f& worldXYZResult, float maxLength) {
-	const ofVec2f cameraCoordinate = camera.getCoordinateFromIndex(cameraPixelIndex);
-	const ofVec2f projectorCoordinate = projector.getCoordinateFromIndex(projectorPixelIndex);
+bool ofxTriangulate::Triangulate(int cameraPixelIndex, int projectorPixelIndex, const ofxRay::Camera& camera, const ofxRay::Projector& projector, glm::vec3& worldXYZResult, float maxLength) {
+	const glm::vec2 cameraCoordinate = camera.getCoordinateFromIndex(cameraPixelIndex);
+	const glm::vec2 projectorCoordinate = projector.getCoordinateFromIndex(projectorPixelIndex);
 	
 	Ray cameraRay = camera.castCoordinate(cameraCoordinate);
 	Ray projectorRay = projector.castCoordinate(projectorCoordinate);
@@ -122,26 +122,24 @@ bool ofxTriangulate::Triangulate(int cameraPixelIndex, int projectorPixelIndex, 
 }
 
 //--------
-void ofxTriangulate::Triangulate(const DataSet & data1, const DataSet & data2, const Camera & camera1, const Camera & camera2, ofMesh & mesh, float maxLength){
+void ofxTriangulate::Triangulate(const DataSet & data1, const DataSet & data2, const Camera & camera1, const Camera & camera2, ofMesh & mesh){
 	mesh.clear();
-	float maxLength2=maxLength*maxLength;
 
 	for(int i=0;i<data1.getDataInverse().size();i++){
 		int d1 = data1.getDataInverse()[i];
 		int d2 = data2.getDataInverse()[i];
 		if(data1.getActive()[d1] && data2.getActive()[d2]){
-			ofVec3f world = Triangulate(d1,d2,camera1,camera2);
-			if(world.lengthSquared()<maxLength2)
-				mesh.addVertex(world);
+			glm::vec3 world = Triangulate(d1,d2,camera1,camera2);
+			mesh.addVertex(world);
 		}
 	}
 }
 
 //--------
-ofVec3f ofxTriangulate::Triangulate(int cam1PixelIndex, int cam2PixelIndex, const Camera & camera1, const Camera & camera2) {
+glm::vec3 ofxTriangulate::Triangulate(int cam1PixelIndex, int cam2PixelIndex, const Camera & camera1, const Camera & camera2) {
 
-	ofVec2f cam1XYNorm = camera1.getCoordinateFromIndex(cam1PixelIndex);
-	ofVec2f cam2XYNorm = camera2.getCoordinateFromIndex(cam2PixelIndex);
+	glm::vec2 cam1XYNorm = camera1.getCoordinateFromIndex(cam1PixelIndex);
+	glm::vec2 cam2XYNorm = camera2.getCoordinateFromIndex(cam2PixelIndex);
 	ofxRay::Ray cray1 = camera1.castCoordinate(cam1XYNorm);
 	ofxRay::Ray cray2 = camera2.castCoordinate(cam2XYNorm);
 	ofxRay::Ray intersect = cray1.intersect(cray2);
@@ -150,7 +148,12 @@ ofVec3f ofxTriangulate::Triangulate(int cam1PixelIndex, int cam2PixelIndex, cons
 }
 
 //----------
-void ofxTriangulate::Triangulate(const vector<ofVec2f> & cameraPointsA, const vector<ofVec2f> & cameraPointsB, const ofxRay::Camera & cameraA, const ofxRay::Camera & cameraB, vector<ofVec3f> & worldSpacePoints, float maxLength /*= std::numeric_limits<float>::max()*/) {
+void ofxTriangulate::Triangulate(const vector<glm::vec2> & cameraPointsA
+	, const vector<glm::vec2> & cameraPointsB
+	, const ofxRay::Camera & cameraA
+	, const ofxRay::Camera & cameraB
+	, vector<glm::vec3> & worldSpacePoints
+	, float maxLength /*= std::numeric_limits<float>::max()*/) {
 	if (cameraPointsA.size() != cameraPointsB.size()) {
 		ofLogError("ofxTriangulate") << "input lengths do not match";
 		return;
@@ -170,7 +173,7 @@ void ofxTriangulate::Triangulate(const vector<ofVec2f> & cameraPointsA, const ve
 	for (size_t i = 0; i < size; i++) {
 		auto intersection = cameraRaysA[i].intersect(cameraRaysB[i]);
 		if (intersection.getLengthSquared() > maxLengthSquared) {
-			worldSpacePoints.push_back(ofVec3f());
+			worldSpacePoints.push_back(glm::vec3());
 		}
 		else {
 			worldSpacePoints.push_back(intersection.getStart());
