@@ -87,13 +87,15 @@ void ofxTriangulate::Triangulate(const DataSet & data, const Camera & camera, co
 
 //--------
 bool ofxTriangulate::Triangulate(ofxGraycode::DataSet::const_iterator& it, const ofxRay::Camera& camera, const ofxRay::Projector& projector, glm::vec3& worldResult, float maxLength2, const function<glm::vec2(const glm::vec2 &)> & undistortFunction) {
+	ofLogWarning("ofxTriangulate") << "It is deprecated to pass a custom undistort function to ofxTriangulate, use ofxRay::Camera::setUndistortFunction instead";
+
 	glm::vec2 camXY = (*it).getCameraXY();
 	glm::vec2 projXY = (*it).getProjectorXY();
 
 	camXY = undistortFunction(camXY);
 
-	Ray cray = camera.castPixel(camXY); // give me the 3D ray for a camera pixel
-	Ray pray = projector.castPixel(projXY); // give me the 3D ray for a projector pixel
+	Ray cray = camera.castPixel(camXY, false); // give me the 3D ray for a camera pixel
+	Ray pray = projector.castPixel(projXY, false); // give me the 3D ray for a projector pixel
 	Ray intersect = cray.intersect(pray);
 
 	const auto lengthSquared = intersect.getLengthSquared();
@@ -162,10 +164,10 @@ void ofxTriangulate::Triangulate(const vector<glm::vec2> & cameraPointsA
 	auto size = cameraPointsA.size();
 
 	vector<ofxRay::Ray> cameraRaysA;
-	cameraA.castPixels(cameraPointsA, cameraRaysA);
+	cameraA.castPixels(cameraPointsA, cameraRaysA, true);
 
 	vector<ofxRay::Ray> cameraRaysB;
-	cameraB.castPixels(cameraPointsB, cameraRaysB);
+	cameraB.castPixels(cameraPointsB, cameraRaysB, true);
 
 	auto maxLengthSquared = maxLength * maxLength;
 
